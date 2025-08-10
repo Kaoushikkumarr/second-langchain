@@ -77,7 +77,7 @@ MIT
 
 - [Ollama](https://github.com/ollama/ollama.py)
 - [OpenAI Python SDK](https://github.com/openai/openai-python)
-- [Groq]((https://console.groq.com))
+- [Groq](https://console.groq.com)
 
 ## Author Name
 - Kaoushik Kumar
