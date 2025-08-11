@@ -5,3 +5,6 @@ langchain_groq
 langserve
 python-dotenv
 streamlit
+fastapi
+uvicorn
+sse_starlette
