@@ -10,11 +10,16 @@ from langchain_community.llms import Ollama
 from langchain_groq import ChatGroq
 from langserve import add_routes
 
+# Load environment variables from .env file
 load_dotenv()
-
 
 # environment variables call
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
+# Langchain Tracking
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+
 
 # Get API key from environment variables
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
