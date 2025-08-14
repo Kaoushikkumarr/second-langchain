@@ -1,4 +1,4 @@
-# LangChain-2
+# second-langchain
 
 This project demonstrates Retrieval-Augmented Generation (RAG) pipelines and multi-LLM integration using LangChain, HuggingFace embeddings, FAISS vector store, and Ollama LLMs.  
 It also shows how to use OpenAI and GROQ APIs for cloud-based inference.
