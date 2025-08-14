@@ -1,19 +1,26 @@
 # LangChain-2
 
-This project demonstrates how to integrate multiple language model APIs in Python, including [Ollama.py](https://github.com/ollama/ollama.py), [OpenAI](https://openai.com/), and [GROQ API](https://console.groq.com). Each API can be used independently for text generation and prompt engineering.
+This project demonstrates Retrieval-Augmented Generation (RAG) pipelines and multi-LLM integration using LangChain, HuggingFace embeddings, FAISS vector store, and Ollama LLMs.  
+It also shows how to use OpenAI and GROQ APIs for cloud-based inference.
+
+---
 
 ## Features
 
-- Query local LLMs using Ollama
-- Access OpenAI GPT models for cloud inference
-- Use Qroq API for additional language model capabilities
-- Example scripts for each API
+- **RAG Pipeline**: Ingest data from text, web, and PDF sources, split documents, generate embeddings, store and search vectors, and build retrieval chains for question answering.
+- **Local Embeddings**: Use HuggingFace models for free, local embeddings.
+- **Vector Store**: Store and search document chunks using FAISS.
+- **LLM Integration**: Use Ollama's smallest model (`tinyllama`) for local inference.
+- **Cloud LLMs**: Access OpenAI GPT models and GROQ API for cloud inference.
+- **Example Notebooks**: Step-by-step workflows in `rag/sample_rag.ipynb` and `rag/chain.ipynb`.
+
+---
 
 ## Installation
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/langchain-2.git
+   git clone https://github.com/kaoushikkumarr/langchain-2.git
    cd langchain-2
    ```
 
@@ -22,20 +29,62 @@ This project demonstrates how to integrate multiple language model APIs in Pytho
    pip install -r requirements.txt
    ```
 
-3. (Optional) Install Ollama locally:
-   - [Ollama Installation Guide](https://github.com/ollama/ollama.py#installation)
-   - [GROQ Website for Information]((https://console.groq.com))
+3. (Optional) Install Ollama locally for LLM inference:
+   - Download and install from [Ollama Website](https://ollama.com/download)
+   - After installation, run in terminal:
+     ```
+     ollama run tinyllama
+     ```
+
+---
 
 ## Usage
 
-### Using Ollama
+### RAG Pipeline Example (see `rag/sample_rag.ipynb`)
 
 ```python
-from ollama import Ollama
+from langchain_community.document_loaders import TextLoader
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 
-ollama_client = Ollama()
-response = ollama_client.generate("What is LangChain?")
-print(response)
+loader = TextLoader("cc.txt", encoding="utf-8")
+text_doc = loader.load()
+
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+db = FAISS.from_documents(text_doc, embeddings)
+
+query = "problems for Large Industries"
+retrieval = db.similarity_search(query=query)
+print(retrieval[0].page_content)
+```
+
+### Retrieval Chain with Ollama (see `rag/chain.ipynb`)
+
+```python
+from langchain.prompts import ChatPromptTemplate
+from langchain_community.llms import Ollama
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
+
+prompt = ChatPromptTemplate.from_template(
+    """
+    You are a helpful assistant. You will be provided with a context and a question. Use the context to answer the question.
+    <context>
+    {context}
+    </context>
+    Question: {input}
+    """
+)
+llm = Ollama(model="tinyllama")
+doc_chain = create_stuff_documents_chain(llm=llm, prompt=prompt)
+db_retriever = db.as_retriever()
+retrieval_chain = create_retrieval_chain(
+    retriever=db_retriever,
+    combine_documents_chain=doc_chain
+)
+
+response = retrieval_chain.invoke({"input": query})
+print(response["answer"])
 ```
 
 ### Using OpenAI
@@ -51,34 +100,53 @@ response = openai.ChatCompletion.create(
 print(response.choices[0].message.content)
 ```
 
-### Using Qroq API
+### Using GROQ API
 
 ```python
-import qroq_api
+import groq_api
 
-qroq_client = qroq_api.Client(api_key="YOUR_QROQ_API_KEY")
-response = qroq_client.generate("What is LangChain?")
+groq_client = groq_api.Client(api_key="YOUR_GROQ_API_KEY")
+response = groq_client.generate("What is LangChain?")
 print(response)
 ```
+
+---
 
 ## Configuration
 
 Set your API keys as environment variables:
 ```sh
 set OPENAI_API_KEY=your-openai-key
-set QROQ_API_KEY=your-qroq-key
+set GROQ_API_KEY=your-groq-key
 ```
+
+---
+
+## Requirements
+
+- Python 3.11+
+- Jupyter Notebook or VS Code
+- Ollama (for local LLM inference)
+
+---
 
 ## License
 
 MIT
 
+---
+
 ## Acknowledgements
 
-- [Ollama](https://github.com/ollama/ollama.py)
+- [Ollama](https://ollama.com)
 - [OpenAI Python SDK](https://github.com/openai/openai-python)
 - [Groq](https://console.groq.com)
+- [LangChain](https://github.com/langchain-ai/langchain)
+- [Sentence Transformers](https://www.sbert.net/)
 
-## Author Name
-- Kaoushik Kumar
-- [GitHub](https://github.com/Kaoushikkumarr)
+---
+
+## Author
+
+- Kaoushik Kumar  
+  [GitHub](https://github.com/Kaoushikkumarr)
