@@ -8,3 +8,9 @@ streamlit
 fastapi
 uvicorn
 sse_starlette
+ipykernel
+bs4
+pypdf
+faiss-cpu
+sentence-transformers
+hf_xet
